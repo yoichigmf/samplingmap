@@ -83,7 +83,12 @@
 <button onclick="rePaintMap()">repaint</button>
 </div>
 
-<div class='map-overlay' id='legend'><b>Virus detection values in sewage water</b> <button onClick="changeLegend()">change legend</button><hR> </div>
+<div class='map-overlay' id='legend'><b>Virus detection values in sewage water</b> <hR> </div>
+
+
+<!--
+  <button onClick="changeLegend()">change legend</button>
+  -->
 
 
 <script>
@@ -155,17 +160,6 @@ function rePaintMap(){
 }
 
 
-const loadImageAsPromise = (map, url) => {
-  return new Promise((resolve, reject) => {
-    map.loadImage(url, (error, image) => {
-      if (image != null) {
-        resolve(image);
-      } else {
-        reject(error);
-      }
-    });
-  });
-};
 
 /*
 function rePaint() {
@@ -266,6 +260,27 @@ const style = {
         zoom: 12
     });
 
+
+    
+const loadImageAsPromise = (map, url) => {
+  return new Promise((resolve, reject) => {
+    map.loadImage(url, (error, image) => {
+      if (image != null) {
+        resolve(image);
+      } else {
+        reject(error);
+      }
+    });
+  });
+};
+
+var symurl = "https://raw.githubusercontent.com/yoichigmf/lhazardmap/develop/icon/AED.png";
+
+
+
+//img = await loadImageAsPromise(map, symurl);
+
+
     map.on('load', () => {
 
 
@@ -292,6 +307,7 @@ const style = {
     }
 
 
+   
 
         let  paint_style = {'fill-outline-color': '#000000',
                   'fill-color': ['interpolate',['linear'],
@@ -313,6 +329,7 @@ const style = {
            };
 
 
+       // img = await loadImageAsPromise(map, sym['icon']);
 
         // Add a source for the state polygons.
         map.addSource('states', {
@@ -323,12 +340,7 @@ const style = {
 
 
         
-        // Add a source for the state polygons.
-        map.addSource('point', {
-            'type': 'geojson',
-            'data': 'data/bandung_point.geojson'
-         //   'data': 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_admin_1_states_provinces_shp.geojson'
-        });
+      
 
         // Add a layer showing the state polygons.
       /*
@@ -401,6 +413,35 @@ const style = {
         */
 
 
+        map.loadImage(
+            'https://raw.githubusercontent.com/yoichigmf/samplingmap/main/icon/arrow_m.png',
+            (error, image) => {
+                if (error) throw error;
+                map.addImage('arrow', image);
+                // Add a GeoJSON source with 15 points
+
+      
+        // Add a source for the state polygons.
+        map.addSource('samplepoint', {
+            'type': 'geojson',
+            'data': 'data/bandung_point.geojson'
+         
+        });
+
+
+        map.addLayer({
+            'id': 'samplepoint-layer',
+            'type': 'symbol',
+            'source': 'samplepoint',
+            'layout': {
+                'icon-image': 'arrow',
+                'icon-size': 1
+            }
+        });
+
+
+
+      });
 
 
         map.addControl(new maplibregl.NavigationControl());
