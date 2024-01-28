@@ -77,7 +77,7 @@
 
 <div class="select-date">
 
-  <input id="slider" type="range" min="0" max="11" step="1" value="0" />
+  <input id="slider" type="range" min="0" max="624" step="1" value="0" />
   <!--
 <select id="year" name="year"></select>
 <select id="month" name="month"></select>
@@ -85,6 +85,8 @@
 
 <button onclick="rePaintMap()">repaint</button>
   -->
+  
+  <div id="sdate"></div>
 </div>
 
 <div class='map-overlay' id='legend'><b>Virus detection values in sewage water Increase/decrease trend</b> <hR> </div>
@@ -105,6 +107,31 @@ const lgurl = "https://script.google.com/macros/s/AKfycbzFbyoqYXvqARq2TWAxNVHh0g
 
 
 //const   lgurl = dpurl + "?cmd=GETLEGEND&test=dummy";
+
+function filterBy(dated) {
+
+    startdate = new Date(2021, 5-1, 24);
+
+    tt = startdate.getDate();
+    //tg = new Date( startdate + dated);
+
+     startdate.setDate(startdate.getDate() + Number(dated));
+
+  
+        let comparedate = startdate.getFullYear() * 10000 + ( startdate.getMonth() + 1) * 100 + startdate.getDate();
+        const filters = ['==', 'datenum', comparedate ];
+
+        
+        map.setFilter('samplepoint_layer', filters);
+        /*
+        map.setFilter('earthquake-labels', filters);
+
+        */
+        // Set the label to the month
+        //document.getElementById('sdate').textContent = startdate.toLocaleDateString() + " " + comparedate;
+        document.getElementById('sdate').textContent = startdate.toLocaleDateString() ;
+    }
+
 
 function  changeLegend() {
   const legend = document.getElementById('legend');
@@ -430,13 +457,13 @@ var symurl = "https://raw.githubusercontent.com/yoichigmf/lhazardmap/develop/ico
         // Add a source for the state polygons.
         map.addSource('timeline', {
             'type': 'geojson',
-            'data': 'data/timeline.geojson'
+            'data': 'data/timeline2.geojson'
          
         });
 
 
         map.addLayer({
-            'id': 'samplepoint-layer',
+            'id': 'samplepoint_layer',
             'type': 'circle',
             'source': 'timeline',
             
@@ -519,6 +546,15 @@ var symurl = "https://raw.githubusercontent.com/yoichigmf/lhazardmap/develop/ico
                 .addTo(map);
         });
 
+
+        filterBy(0);
+
+        document
+                    .getElementById('slider')
+                    .addEventListener('input', (e) => {
+                        const date = e.target.value;
+                        filterBy(date);
+                    });
         // Change the cursor to a pointer when the mouse is over the states layer.
         /*
         map.on('mouseenter', 'states-layer', () => {
