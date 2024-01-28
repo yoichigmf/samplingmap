@@ -85,6 +85,13 @@
 
 <button onclick="rePaintMap()">repaint</button>
   -->
+  <br>
+  <select id="filter_method">
+
+    <option value="ex">display specified date data</option>
+    <option value="5d">display data for 5 days before and after</option>
+ 
+    </select>
   
   <div id="sdate"></div>
 </div>
@@ -108,87 +115,62 @@ const lgurl = "https://script.google.com/macros/s/AKfycbzFbyoqYXvqARq2TWAxNVHh0g
 
 //const   lgurl = dpurl + "?cmd=GETLEGEND&test=dummy";
 
+var vfiltermethod = "ex";
+
+let ffilter = document.getElementById('filter_method');
+ffilter.addEventListener('change', methodChange);
+
+function methodChange() {
+  vfiltermethod = ffilter.value;
+ // filterBy(0);
+}
+
+
 function filterBy(dated) {
 
-    startdate = new Date(2021, 5-1, 24);
-
-    tt = startdate.getDate();
+    let startdate = new Date(2021, 5-1, 24);
+    let cmpdateL= new Date(2021, 5-1, 24);
+    let cmpdateH= new Date(2021, 5-1, 24);
+   
     //tg = new Date( startdate + dated);
 
      startdate.setDate(startdate.getDate() + Number(dated));
+     cmpdateL.setDate( startdate.getDate() + Number(dated) - 5);
+     cmpdateH.setDate( startdate.getDate() + Number(dated) + 5);
+
+     var method_select = document.getElementById('filter_method');
+
+   
 
   
         let comparedate = startdate.getFullYear() * 10000 + ( startdate.getMonth() + 1) * 100 + startdate.getDate();
+
+        let comparedateL = cmpdateL.getFullYear() * 10000 + ( cmpdateL.getMonth() + 1) * 100 + cmpdateL.getDate();
+        let comparedateH = cmpdateH.getFullYear() * 10000 + ( cmpdateH.getMonth() + 1) * 100 + cmpdateH.getDate();
+
         const filters = ['==', 'datenum', comparedate ];
+        const filters2 = ["all",['>=', 'datenum', comparedateL ] ,['<=', 'datenum', comparedateH ]];
+
+        var filter_method = filters;
+
+       if (vfiltermethod  == "5d") {
+          filter_method = filters2;
+        }
+        else {
+          filter_method = filters;
+        }
 
         
-        map.setFilter('samplepoint_layer', filters);
-        /*
-        map.setFilter('earthquake-labels', filters);
+        map.setFilter('samplepoint_layer', filter_method);
+        
+        map.setFilter('sample-values', filter_method);
 
-        */
+        document.getElementById('sdate').textContent = startdate.toLocaleDateString() ;
         // Set the label to the month
         //document.getElementById('sdate').textContent = startdate.toLocaleDateString() + " " + comparedate;
-        document.getElementById('sdate').textContent = startdate.toLocaleDateString() ;
+       // document.getElementById('sdate').textContent = startdate.toLocaleDateString()  + " method:" + method_select.value;
     }
 
-
-function  changeLegend() {
-  const legend = document.getElementById('legend');
-
-
-  fetch( lgurl, {
-        method: "GET",
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-           // 'Access-Control-Allow-Origin': '*'
-        },
-        mode: "no-cors"
-     })
-     .then(response => {
-       console.log(response);
-       if (response.ok) {
-          console.log(response.json());
-          return response.json();
-       }
-    // 404 や 500 ステータスならここに到達する
-      throw new Error('Network response was not ok.');
-      })
-    .then(resJson => {
-
-      LocationList = resJson;
-      console.log(LocationList);
-      }
-    )
-    .catch(error => {
-      let err = error;
-      //console.error('There has been a problem with your fetch operation:', error);
-    });
-
-
-
- // if (legend.style.display == "none") {
-   // legend.style.display = "block";
-  //} else {
- //   legend.style.display = "none";
-  //}
-
-}
-
-//   地図再描画
-function rePaintMap(){
-  
-    const year = document.getElementById('year').value;
-    const month = document.getElementById('month').value;
-    const date = document.getElementById('date').value;
-
-    let mapjson = rePaint(dpurl, year, month, date);
-
-    
-   // console.log(mapjson);
-    // map.getSource('states').setData(mapjson);
-  
-}
 
 
 
@@ -512,6 +494,27 @@ var symurl = "https://raw.githubusercontent.com/yoichigmf/lhazardmap/develop/ico
                     }
         });
 
+
+        map.addLayer({
+                    'id': 'sample-values',
+                    'type': 'symbol',
+                    'source': 'timeline',
+                    'layout': {
+                        'text-field': [
+                            'concat',
+                            ['to-string', ['get', 'value']],
+                            'Copies/L'
+                        ],
+                        'text-font': [
+                            'Open Sans Bold',
+                            'Arial Unicode MS Bold'
+                        ],
+                        'text-size': 12
+                    },
+                    'paint': {
+                        'text-color': 'rgba(0,0,0,0.5)'
+                    }
+                });
 
         /*
         map.addLayer({
