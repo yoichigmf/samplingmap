@@ -5,8 +5,14 @@
     <meta property="og:description" content="When a user clicks a polygon, show a popup containing more information." />
     <meta charset='utf-8'>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--
     <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@3.6.0/dist/maplibre-gl.css' />
     <script src='https://unpkg.com/maplibre-gl@3.6.0/dist/maplibre-gl.js'></script>
+    -->
+
+    <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@4.0.0/dist/maplibre-gl.css' />
+
+    <script src='https://unpkg.com/maplibre-gl@4.0.0/dist/maplibre-gl.js'></script>
 
     <script src='./smap.js'></script>
     <style>
@@ -37,7 +43,7 @@
         padding: 10px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.10);
             line-height: 19px;
-            height: 160px;
+            height: 200px;
             width:230px;
             margin-bottom: 50px;
 			background-color: #292929;
@@ -77,7 +83,11 @@
 
 <div class="select-date">
 
-  <input id="slider" type="range" min="0" max="624" step="1" value="0" />
+  <input id="dec" type="button" value="-" onclick="filterDec()" />
+  <input id="inc" type="button" value="+" onclick="filterAdd()" />
+  <br>
+
+  <input id="slider" type="range" min="0" max="616" step="1" value="0" />
   <!--
 <select id="year" name="year"></select>
 <select id="month" name="month"></select>
@@ -86,17 +96,19 @@
 <button onclick="rePaintMap()">repaint</button>
   -->
   <br>
+  <!---
   <select id="filter_method">
 
     <option value="ex">display specified date data</option>
     <option value="5d">display data for 5 days before and after</option>
  
     </select>
-  
+  -->
+
   <div id="sdate"></div>
 </div>
 
-<div class='map-overlay' id='legend'><b>Virus detection values in sewage water Increase/decrease trend</b> <hR> </div>
+<div class='map-overlay' id='legend'><b>Virus detection values in sewage water Increase/decrease trend</b><br>Copies/L indicates viral load in wastewater analyzed by PCR <br> <hR> </div>
 
 
 <!--
@@ -115,22 +127,44 @@ const lgurl = "https://script.google.com/macros/s/AKfycbzFbyoqYXvqARq2TWAxNVHh0g
 
 //const   lgurl = dpurl + "?cmd=GETLEGEND&test=dummy";
 
-var vfiltermethod = "ex";
+var vfiltermethod = "5d";
 
-let ffilter = document.getElementById('filter_method');
-ffilter.addEventListener('change', methodChange);
+//
 
-function methodChange() {
-  vfiltermethod = ffilter.value;
+//let ffilter = document.getElementById('filter_method');
+//ffilter.addEventListener('change', methodChange);
+
+//function methodChange() {
+ // vfiltermethod = ffilter.value;
  // filterBy(0);
+//}
+
+
+
+
+function filterAdd() {
+  let slider = document.getElementById('slider');
+  let value = slider.value;
+  value = Number(value) + 1;
+  slider.value = value;
+  filterBy(value);
 }
+
+function filterDec() {
+  let slider = document.getElementById('slider');
+  let value = slider.value;
+  value = Number(value) - 1;
+  slider.value = value;
+  filterBy(value);
+}
+
 
 
 function filterBy(dated) {
 
-    let startdate = new Date(2021, 5-1, 24);
-    let cmpdateL= new Date(2021, 5-1, 24);
-    let cmpdateH= new Date(2021, 5-1, 24);
+    let startdate = new Date(2021, 6-1, 1);
+    let cmpdateL= new Date(2021, 6-1, 1);
+    let cmpdateH= new Date(2021, 6-1, 1);
    
     //tg = new Date( startdate + dated);
 
@@ -270,7 +304,7 @@ const style = {
     const map = new maplibregl.Map({
         container: 'map',
         style:  'https://tile.openstreetmap.jp/styles/openmaptiles/style.json',
-        center: [107.608889, -6.910833],
+        center: [107.6592355, -7.000417],
         zoom: 12
     });
 
@@ -439,7 +473,7 @@ var symurl = "https://raw.githubusercontent.com/yoichigmf/lhazardmap/develop/ico
         // Add a source for the state polygons.
         map.addSource('timeline', {
             'type': 'geojson',
-            'data': 'data/timeline2.geojson'
+            'data': 'data/timeline.geojson'
          
         });
 
@@ -503,7 +537,7 @@ var symurl = "https://raw.githubusercontent.com/yoichigmf/lhazardmap/develop/ico
                         'text-field': [
                             'concat',
                             ['to-string', ['get', 'value']],
-                            'Copies/L'
+                            ' Copies/L'
                         ],
                         'text-font': [
                             'Open Sans Bold',
